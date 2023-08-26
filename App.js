@@ -1,35 +1,42 @@
-import { StyleSheet, Text, View, Button, TextInput } from "react-native";
+import { StyleSheet, View, Button, TextInput, FlatList } from "react-native";
 import { useState } from "react";
-
+import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 export default function App() {
-  const [enteredGoalText, setEnteredGoalText] = useState("");
   const [courseGoals, setCourseGoals] = useState([]);
-  function goalInputHandler(enteredText) {
-    setEnteredGoalText(enteredText);
-  }
-  function addGoalHandler() {
+
+  function addGoalHandler(enteredGoalText) {
     setCourseGoals((currentCourseGoals) => [
       ...currentCourseGoals,
-      enteredGoalText,
+      { text: enteredGoalText, id: Math.random().toString() },
     ]);
+  }
+  function deleteGoalHandler(id) {
+    setCourseGoals((currentCourseGoals) => {
+      return currentCourseGoals.filter((goal) => goal.id !== id);
+    });
   }
 
   return (
     <View style={styles.appContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Your Course Goal "
-          onChangeText={goalInputHandler}
-        />
-        <Button title="Add Goal" onPress={addGoalHandler} />
-      </View>
+      <GoalInput onAddGoal={addGoalHandler} />
       <View style={styles.goalsContainer}>
-        {courseGoals.map((goal) => (
-          <Text key={goal} style={styles.goalItem}>
-            {goal}
-          </Text>
-        ))}
+        <FlatList
+          data={courseGoals}
+          renderItem={(itemData) => {
+            return (
+              <GoalItem
+                text={itemData.item.text}
+                id={itemData.item.id}
+                onDelete={deleteGoalHandler}
+              />
+            );
+          }}
+          alwaysBounceVertical={false}
+          keyExtractor={(item, index) => {
+            return item.id;
+          }}
+        />
       </View>
     </View>
   );
@@ -40,33 +47,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 50,
     paddingHorizontal: 16,
-  },
-  inputContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 24,
-    borderBottomWidth: 1,
-    borderBlockColor: "#cccccc",
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: "#cccccc",
-    width: "70%",
-    marginRight: 8,
-    padding: 8,
+    backgroundColor: "#BF6666",
   },
   goalsContainer: {
     flex: 5,
-  },
-  goalItem: {
-    borderWidth: 1,
-    borderBlockColor: "black",
-    padding: 5,
-    margin: 8,
-    borderRadius: 6,
-    backgroundColor: "#5e0acc",
-    color: "#fff",
+    // backgroundColor: "#D2C3C3",
   },
 });
